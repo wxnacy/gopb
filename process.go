@@ -16,6 +16,9 @@ type Process struct {
     prefix string
     width int
     done chan bool
+    progressSymbol string
+    waitSymbol string
+    arrowSymbol string
     todo func(progress float64) int
 }
 
@@ -30,10 +33,25 @@ func NewProcess(
         begin: begin,
         current: begin,
         prefix: prefix,
+        progressSymbol: defaultProgressSymbol,
+        arrowSymbol: defaultArrowSymbol,
+        waitSymbol: defaultWaitSymbol,
         done: make(chan bool, 0),
         todo: todo,
     }
     return p
+}
+
+func (this *Process) SetProgressSymbol(s string) {
+    this.progressSymbol = s
+}
+
+func (this *Process) SetWaitSymbol(s string) {
+    this.waitSymbol = s
+}
+
+func (this *Process) SetArrowSymbol(s string) {
+    this.arrowSymbol = s
 }
 
 func (this *Process) Progress() float64 {
@@ -52,7 +70,6 @@ func (this *Process) IsDone() bool {
 }
 
 func (this *Process) run() {
-    // this.printProgress()
     go func(){
         Loop:
         for {
@@ -86,18 +103,51 @@ func (this *Process) printProgress() {
     fmt.Printf("%s \033[K\n", output)
 }
 
-func (this *Process) progressString() string {
+func (this *Process) toString() string {
     output := fmt.Sprintf(
-        "%s %d/%d %s%s%s%s %s",
+        "%s %s %s %s",
         this.prefix,
-        this.current, this.total,
-        Blue("["),
-        Cyan(strings.Repeat("=", this.progressNum())),
-        Yellow(strings.Repeat("-", this.width - this.progressNum())),
-        Blue("]"),
+        this.numString(),
+        this.progressString(),
         this.percentageString(),
     )
     return output
+}
+
+func (this *Process) progressString() string {
+
+    pNum := this.progressNum()
+    if pNum > 0 && !this.IsDone(){
+        pNum--
+    }
+
+    arrowStr := Cyan(this.arrowSymbol)
+    if this.IsDone() {
+        arrowStr = ""
+    }
+    output := fmt.Sprintf(
+        "%s%s%s%s%s",
+        Blue("["),
+        Cyan(strings.Repeat(this.progressSymbol, pNum)),
+        arrowStr,
+        Yellow(strings.Repeat(this.waitSymbol, this.width - this.progressNum())),
+        Blue("]"),
+    )
+    return output
+}
+
+func (this *Process) numString() string {
+    totalLength := len(strconv.Itoa(this.total))
+    // currentLength := len(strconv.Itoa(this.current))
+
+    totalStringFmt := fmt.Sprintf("%%%dd", totalLength)
+
+    return fmt.Sprintf(
+        totalStringFmt + "/" + totalStringFmt,
+        this.current,
+        this.total,
+    )
+
 }
 
 func (this *Process) percentageString() string {

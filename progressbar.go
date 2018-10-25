@@ -67,7 +67,7 @@ func (this *ProgressBar) progressString() string {
     out := ""
     for i := 0; i < this.ProcessNum(); i++ {
         prog := this.processes[i]
-        out += prog.progressString()
+        out += prog.toString()
         if i + 1 < this.ProcessNum() {
             out += "\n"
         }
