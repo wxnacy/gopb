@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-# TAG_NAME=$1
-TAG_NAME=`wcrypto -v`
-# PUSH_MSG=${@/$1/}
-PUSH_MSG=${@}
-
+TAG_NAME=$1
+# TAG_NAME=`wcrypto -v`
+PUSH_MSG=${@/$1/}
+# PUSH_MSG=${@}
 
 main(){
     git pull origin master
