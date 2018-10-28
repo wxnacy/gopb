@@ -7,4 +7,7 @@ const (
     defaultProgressSymbol string = "="
     defaultArrowSymbol = ">"
     defaultWaitSymbol = "-"
+    defaultProgressColor int = TextCyan
+    defaultArrowColor = TextCyan
+    defaultWaitColor = TextYellow
 )

@@ -19,6 +19,9 @@ type Process struct {
     progressSymbol string
     waitSymbol string
     arrowSymbol string
+    progressColor int
+    arrowColor int
+    waitColor int
     todo func(progress float64) int
 }
 
@@ -36,6 +39,9 @@ func NewProcess(
         progressSymbol: defaultProgressSymbol,
         arrowSymbol: defaultArrowSymbol,
         waitSymbol: defaultWaitSymbol,
+        progressColor: defaultProgressColor,
+        arrowColor: defaultArrowColor,
+        waitColor: defaultWaitColor,
         done: make(chan bool, 0),
         todo: todo,
     }
@@ -52,6 +58,18 @@ func (this *Process) SetWaitSymbol(s string) {
 
 func (this *Process) SetArrowSymbol(s string) {
     this.arrowSymbol = s
+}
+
+func (this *Process) SetProgressColor(c int) {
+    this.progressColor = c
+}
+
+func (this *Process) SetWaitColor(c int) {
+    this.waitColor = c
+}
+
+func (this *Process) SetArrowColor(c int) {
+    this.arrowColor = c
 }
 
 func (this *Process) Progress() float64 {
@@ -120,17 +138,26 @@ func (this *Process) progressString() string {
     if pNum > 0 && !this.IsDone(){
         pNum--
     }
+    progressStr := SetColor(
+        strings.Repeat(this.progressSymbol, pNum),
+        0, 0, this.progressColor,
+    )
 
-    arrowStr := Cyan(this.arrowSymbol)
+    arrowStr := SetColor(this.arrowSymbol, 0, 0, this.arrowColor)
     if this.IsDone() {
         arrowStr = ""
     }
+
+    waitStr := SetColor(
+        strings.Repeat(this.waitSymbol, this.width - this.progressNum()),
+        0, 0, this.waitColor,
+    )
     output := fmt.Sprintf(
         "%s%s%s%s%s",
         Blue("["),
-        Cyan(strings.Repeat(this.progressSymbol, pNum)),
+        progressStr,
         arrowStr,
-        Yellow(strings.Repeat(this.waitSymbol, this.width - this.progressNum())),
+        waitStr,
         Blue("]"),
     )
     return output
@@ -138,7 +165,6 @@ func (this *Process) progressString() string {
 
 func (this *Process) numString() string {
     totalLength := len(strconv.Itoa(this.total))
-    // currentLength := len(strconv.Itoa(this.current))
 
     totalStringFmt := fmt.Sprintf("%%%dd", totalLength)
 

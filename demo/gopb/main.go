@@ -24,6 +24,9 @@ func main() {
     p.SetProgressSymbol("#")
     p.SetArrowSymbol("^")
     p.SetWaitSymbol("*")
+    p.SetProgressColor(pb.TextGreen)
+    p.SetArrowColor(pb.TextGreen)
+    p.SetWaitColor(pb.TextRed)
     bar.AddProcess(p)
 
     bar.AddDefaultProcess("进程3", func(progress float64) int {
